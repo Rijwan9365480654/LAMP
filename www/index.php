@@ -1,8 +1,5 @@
-<html>
-
 <?php
 if (isset($_POST["Submit"])) {
-    //Check if Name is Empty
     if (empty($_POST["Name"])) {
         $NameError = "(Name is Required)";
     } else {
@@ -43,39 +40,59 @@ function Test_User_Input($Data)
 
 ?>
 
+
+<!doctype html>
+<html lang="en">
+
 <head>
     <title>Validation form in PHP</title>
 </head>
+
+<style type="text/css">
+    input[type="text"],
+    input[type="Email"],
+    textarea {
+        border: 1px solid_dashed;
+        background-color: rgb(221, 216, 212);
+        width: 600px;
+        padding: .5em;
+        font-size: 1.0em;
+    }
+
+    .Error {
+        color: red;
+    }
+</style>
 
 <BODY>
     <?php
     echo "<h2>Form Validation with PHP</h2>";
     ?>
     <form action="" method="POST">
-        <legend>* Please fill out the following fields</legend>
+        <legend>Fields with <font color="red">*</font> are required.</legend>
         <fieldset>
             <?php
             if (isset($_POST["Submit"])) {
                 if (!empty($_POST["Name"]) && !empty($_POST["Email"]) && !empty($_POST["Gender"]) && !empty($_POST["Website"])) {
                     if (preg_match("/^[A-Za-z. ]*$/", $Name) == true && preg_match("/[A-Za-z0-9._-]{3,}@[A-Za-z0-9._-]{3,}[.]{1}[A-Za-z0-9._-]{2,}/", $Email) && preg_match("/(https:|ftp:)\/\/+[a-zA-Z0-9.\-_\/?\$=&\#\~`!]+\.[A-Za-z0-9.\-_\/?\$=&\#\~`!]*/", $Website)) {
                     } else {
-                        echo "(Correct The Form & Submit Again)<br>";
+                        echo '<span class="Error">(Correct The Form & Submit Again)<br></span>';
                     }
                 } else {
-                    echo "(Fill all the Fields with *)<br>";
+                    echo '<span class="Error">(Fill all the Fields with *)<br></span>';
                 }
             }
 
             ?>
-            Name:*<br>
-            <input class="input" type="text" name="Name" value=""><?php echo "$NameError"; ?><br>
-            Email:*<br>
-            <input class="input" type="email" name="Email" value=""><?php echo "$EmailError"; ?><br>
-            Gender:*<br>
+            Name:<span class=" Error">*</span><br>
+            <input class="input" type="text" name="Name" value=""> <span class="Error"><?php echo "$NameError"; ?><br></span>
+            Email:<span class="Error">*</span><br>
+            <input class="input" type="email" name="Email" value=""> <span class="Error"><?php echo "$EmailError"; ?><br></span>
+            Gender:<span class="Error">*</span><br>
             <input class="radio" type="radio" name="Gender" value="Male">Male
-            <input class="radio" type="radio" name="Gender" value="Female">Female <?php echo "$GenderError"; ?><br>
-            Website:*<br>
-            <input class="input" type="text" name="Website" value=""><?php echo "$WebsiteError"; ?><br>
+            <input class="radio" type="radio" name="Gender" value="Female">Female <span class="Error"><?php echo "$GenderError"; ?><br></span>
+            Website:<span class="Error">*</span><br>
+            <input class="input" type="text" name="Website" value=""> <span class="Error"><?php echo "$WebsiteError"; ?><br></span>
             Comment:<br>
             <textarea name="Comment" rows="5" cols="25"></textarea><br>
             <input type="Submit" Name="Submit" Value="Submit">
