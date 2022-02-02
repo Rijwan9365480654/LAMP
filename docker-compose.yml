@@ -16,10 +16,10 @@ services:
             - "3306:3306"
         command: --default-authentication-plugin=mysql_native_password
         environment:
-            MYSQL_DATABASE: myDb
-            MYSQL_USER: user
-            MYSQL_PASSWORD: test
-            MYSQL_ROOT_PASSWORD: test 
+            MYSQL_DATABASE: Data
+            MYSQL_USER: Rijwan
+            MYSQL_PASSWORD: Ansari
+            MYSQL_ROOT_PASSWORD: Rijwan123456 
         volumes:
             - ./dump:/docker-entrypoint-initdb.d
             - ./conf:/etc/mysql/conf.d
