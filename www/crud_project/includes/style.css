@@ -1,0 +1,47 @@
+.FieldInfo{
+    color:rgb(251,174,44);
+    font-family: Bitter, Georgia, 'Times New Roman', Times, serif;
+    font-size: 1em;
+}
+
+div{
+    width: 500px;
+    margin-left: 360px;
+}
+
+input[type="text"],textarea{
+    border: 1px solid dashed;
+    background-color: rgb(221,216,212);
+    width: 480px;
+    padding: .5em;
+    font-size: 1.0em;
+}
+
+input[type="submit"]{
+    color:white;
+    font-size: 1.0em;
+    font-family: Bitter,Georgia, 'Times New Roman', Times, serif;
+    width: 200px;
+    height: 40px;
+    background-color: #5D0580;
+    border: 5px solid;
+    border-bottom-left-radius: 35px;
+    border-bottom-right-radius: 35px;
+    border-top-left-radius: 35px;
+    border-top-right-radius: 35px;
+    border-color: rgb(221,216,212);
+    font-weight: bold;
+    float: left;
+}  
+
+.FieldInfoHeading{
+    color: rgb(251,174,44);
+    font-family: Bitter, Georgia, 'Times New Roman', Times, serif;
+}
+
+.success{
+    color: rgb(158,27,214);
+    font-family: Bitter, Georgia, "Times New Roman", Times, serif;
+    font-size: 1.4em;
+    font-weight: bold;
+}

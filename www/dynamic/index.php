@@ -153,7 +153,7 @@
         </div>
         <div id="menu">
             <ul>
-                <li><a href='index.php'>Home</a></li>
+                <li><a href=''>Home</a></li>
                 <li><a href="index.php?PageName=About">About Us </a></li>
                 <li><a href="index.php?PageName=Contact">Contact Us</a></li>
                 <li><a href="index.php?PageName=ShareWithFriend">Tell a friend</a></li>
