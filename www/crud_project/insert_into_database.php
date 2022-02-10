@@ -9,7 +9,7 @@ if (isset($_POST['submit'])) {
         $HomeAddress = $_POST["HomeAddress"];
         global $conn;
         //preparing sql for entry in database using pdo with dummy values
-        $sql = "INSERT INTO emp_record(ename,ssn,dept,salary,homeaddress) VALUES(:eName,:ssN,:depT.:salarY,:homeaddresS)";
+        $sql = "INSERT INTO emp_record(ename,ssn,dept,salary,homeaddress) VALUES(:enamE,:ssN,:depT,:salarY,:homeaddresS)";
         $stmt = $conn->prepare($sql);
         //binding real values with the dummy values for preventing sql injection
         $stmt->bindValue(':enamE', $EName);
@@ -19,7 +19,9 @@ if (isset($_POST['submit'])) {
         $stmt->bindValue(':homeaddresS', $HomeAddress);
         $Execute = $stmt->execute();
         if ($Execute) {
-            echo '<span class="success">Record has been added</span>';
+            echo '<span class="success">Record has been added Successfully</span>';
+        } else {
+            echo "something Went Wrong";
         }
     } else {
         echo '<span class="FieldInfoHeading">Please add atleast Name and SSN Filled</span>';
@@ -38,7 +40,7 @@ if (isset($_POST['submit'])) {
     <?php
     //php code
     ?>
-
+    <h3><a href="index.php">Go Back to HomePage</a></h3>
     <div class="">
         <form class="" action="insert_into_database.php" method="post">
             <fieldset>
