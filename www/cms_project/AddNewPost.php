@@ -4,34 +4,42 @@ require_once("includes/db.php"); ?>
 <?php require_once("includes/Sessions.php"); ?>
 <?php
 if (isset($_POST["Submit"])) {
-    $Category = $_POST["CategoryTitle"];
+    $PostTitle = $_POST["PostTitle"];
+    $Category = $_POST['Category'];
+    $Image = $_FILES["Image"]["name"];
+    $Target = "/upload/" . basename($_FILES["Image"]["name"]);
+    $PostText = $_POST["PostDescription"];
     $Admin = "Rijwan";
-    //Date and Time fetcher
     date_default_timezone_set("Asia/Kolkata");
     $DateTime = strftime("%d %B %Y %H:%M:%S", time());
-    if (empty($Category)) {
-        $_SESSION["ErrorMessage"] = "Fill the Category Title";
-        Redirect_to("Categories.php");
-    } elseif (strlen($Category) < 3) {
-        $_SESSION["ErrorMessage"] = "Category Title should be greater than 2 Characters";
-        Redirect_to("Categories.php");
-    } elseif (strlen($Category) > 49) {
-        $_SESSION["ErrorMessage"] = "Category Title should be less than 50 Characters";
-        Redirect_to("Categories.php");
+    if (empty($PostTitle)) {
+        $_SESSION["ErrorMessage"] = "Title can't be Empty";
+        Redirect_to("AddNewPost.php");
+    } elseif (strlen($PostTitle) < 6) {
+        $_SESSION["ErrorMessage"] = "Post Title should be greater than 5 Characters";
+        Redirect_to("AddNewPost.php");
+    } elseif (strlen($PostText) > 999) {
+        $_SESSION["ErrorMessage"] = "Post Description should be less than 1000 Characters";
+        Redirect_to("AddNewPost.php");
     } else {
-        $sql = "INSERT INTO category(title,author,datetime) Values(:categorynamE,:adminnamE,:datetimE)";
+        $sql = "INSERT INTO posts(datetime,title,category,author,image,post) Values(:datetimE,:posttitlE,:categorynamE,:adminnamE,:imageName,:postDescription)";
         $stmt = $conn->prepare($sql);
+        $stmt->bindValue(':datetimE', $DateTime);
+        $stmt->bindValue(':posttitlE', $PostTitle);
         $stmt->bindValue(':categorynamE', $Category);
         $stmt->bindValue(':adminnamE', $Admin);
-        $stmt->bindValue(':datetimE', $DateTime);
+        $stmt->bindValue(':imageName', $Image);
+        $stmt->bindValue(':postDescription', $PostText);
         $Execute = $stmt->execute();
 
+        move_uploaded_file($_FILES["Image"]['tmp_name'], $Target);
+
         if ($Execute) {
-            $_SESSION["SuccessMessage"] = "Category Added Successfully";
-            Redirect_to("Basic.php");
+            $_SESSION["SuccessMessage"] = "Post Added Successfully";
+            Redirect_to("AddNewPost.php");
         } else {
             $_SESSION["ErrorMessage"] = "Something Went Wrong";
-            Redirect_to("Categories.php");
+            Redirect_to("AddNewPost.php");
         }
     }
 }
@@ -52,7 +60,7 @@ if (isset($_POST["Submit"])) {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <!-- Own CSS Code file -->
     <link rel="stylesheet" href="css/styles.css">
-    <title>Categories</title>
+    <title>Add New Post</title>
 </head>
 
 <body>
@@ -102,7 +110,7 @@ if (isset($_POST["Submit"])) {
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <h1><i class="fa-solid fa-edit" style="color:#27aae1;"></i>Manage Categories</h1>
+                    <h1><i class="fa-solid fa-edit" style="color:#27aae1;"></i>Add New Post</h1>
                 </div>
             </div>
         </div>
@@ -117,16 +125,39 @@ if (isset($_POST["Submit"])) {
                 echo ErrorMessage();
                 echo SuccessMessage();
                 ?>
-                <form action=" Categories.php" method="POST">
+                <form action="AddNewPost.php" method="POST" enctype="multipart/form-data">
                     <div class="card bg-secondary text-light mb-3">
-                        <div class="card-header">
-                            <h1>Add New Category</h1>
-
-                        </div>
                         <div class="card-body bg-dark">
                             <div class="form-group">
-                                <label for="title"><span class="FieldInfo"> Category Title:</span></label>
-                                <input class="form-control" type="text" name="CategoryTitle" id="title" placeholder="Type Title Here" value="">
+                                <label for="title"><span class="FieldInfo"> Post Title:</span></label>
+                                <input class="form-control" type="text" name="PostTitle" id="title" placeholder="Type Title Here" value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="CategoryTitle"><span class="FieldInfo"> Choose Category:</span></label>
+                                <select class="form-control" id="CategoryTitle" name="Category">
+                                    <?php
+                                    global $conn;
+                                    $sql = "SELECT id,title FROM category";
+                                    $stmt = $conn->query($sql);
+                                    while ($DataRows = $stmt->fetch()) {
+                                        $Id = $DataRows['id'];
+                                        $CategoryName = $DataRows['title'];
+                                    ?>
+                                        <option><?php echo $CategoryName; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                            <div class="form-group mb-1">
+                                <div class="custom-file">
+                                    <input type="file" name="Image" id="imageSelect" value="" class="custom-file-input">
+                                    <label for="imageSelect" class="custom-file-label">Select Image</label>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="Post">
+                                    <span class="FieldInfo">Post:</span>
+                                </label>
+                                <textarea class="form-control" id="Post" name="PostDescription" rows="8" cols="80"></textarea>
                             </div>
                             <div class="row">
                                 <div class="col-lg-6 mb-2">
@@ -155,7 +186,6 @@ if (isset($_POST["Submit"])) {
                 </div>
             </div>
         </div>
-
         <div style="height:5px; background:#27aae1"></div>
     </footer>
     <!--Footer Ends Here -->
