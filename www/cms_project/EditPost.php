@@ -3,6 +3,7 @@ require_once("includes/db.php"); ?>
 <?php require_once("includes/Functions.php"); ?>
 <?php require_once("includes/Sessions.php"); ?>
 <?php
+$SearchQueryParameter = $_GET['id'];
 if (isset($_POST["Submit"])) {
     $PostTitle = $_POST["PostTitle"];
     $Category = $_POST['Category'];
@@ -14,32 +15,30 @@ if (isset($_POST["Submit"])) {
     $DateTime = strftime("%d %B %Y %H:%M:%S", time());
     if (empty($PostTitle)) {
         $_SESSION["ErrorMessage"] = "Title can't be Empty";
-        Redirect_to("AddNewPost.php");
+        Redirect_to("Posts.php");
     } elseif (strlen($PostTitle) < 6) {
         $_SESSION["ErrorMessage"] = "Post Title should be greater than 5 Characters";
-        Redirect_to("AddNewPost.php");
+        Redirect_to("Posts.php");
     } elseif (strlen($PostText) > 9999) {
         $_SESSION["ErrorMessage"] = "Post Description should be less than 10000 Characters";
-        Redirect_to("AddNewPost.php");
+        Redirect_to("Posts.php");
     } else {
-        $sql = "INSERT INTO posts(datetime,title,category,author,image,post) Values(:datetimE,:posttitlE,:categorynamE,:adminnamE,:imageName,:postDescription)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindValue(':datetimE', $DateTime);
-        $stmt->bindValue(':posttitlE', $PostTitle);
-        $stmt->bindValue(':categorynamE', $Category);
-        $stmt->bindValue(':adminnamE', $Admin);
-        $stmt->bindValue(':imageName', $Image);
-        $stmt->bindValue(':postDescription', $PostText);
-        $Execute = $stmt->execute();
+        if (!empty($Image)) {
+            $sql = "UPDATE posts SET title='$PostTitle', category='$Category', image='$Image', post='$PostText' WHERE id=$SearchQueryParameter";
+            $Execute = $conn->query($sql);
+            move_uploaded_file($_FILES["Image"]['tmp_name'], $Target);
+        } else {
+            $sql = "UPDATE posts SET title='$PostTitle', category='$Category', post='$PostText' WHERE id=$SearchQueryParameter";
+            $Execute = $conn->query($sql);
+        }
 
-        move_uploaded_file($_FILES["Image"]['tmp_name'], $Target);
-
+        //var_dump($Execute)
         if ($Execute) {
-            $_SESSION["SuccessMessage"] = "Post Added Successfully";
-            Redirect_to("AddNewPost.php");
+            $_SESSION["SuccessMessage"] = "Post Updated Successfully";
+            Redirect_to("Posts.php");
         } else {
             $_SESSION["ErrorMessage"] = "Something Went Wrong";
-            Redirect_to("AddNewPost.php");
+            Redirect_to("Posts.php");
         }
     }
 }
@@ -60,7 +59,7 @@ if (isset($_POST["Submit"])) {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <!-- Own CSS Code file -->
     <link rel="stylesheet" href="css/styles.css">
-    <title>Add New Post</title>
+    <title>Edit Post</title>
 </head>
 
 <body>
@@ -110,7 +109,7 @@ if (isset($_POST["Submit"])) {
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <h1><i class="fa-solid fa-edit" style="color:#27aae1;"></i>Add New Post</h1>
+                    <h1><i class="fa-solid fa-edit" style="color:#27aae1;"></i>Edit Post</h1>
                 </div>
             </div>
         </div>
@@ -121,19 +120,29 @@ if (isset($_POST["Submit"])) {
     <section class="container py-2 mb-4">
         <div class="row">
             <div class="offset-lg-1 col-lg-10" style="min-height: 415px;">
-                <p id="demo"></p>
                 <?php
                 echo ErrorMessage();
                 echo SuccessMessage();
+                $sql = "SELECT * FROM posts WHERE id='$SearchQueryParameter'";
+                $stmt = $conn->query($sql);
+                while ($DataRows = $stmt->fetch()) {
+                    $TitleToBeUpdated = $DataRows["title"];
+                    $CategoryToBeUpdated = $DataRows["category"];
+                    $ImageToBeUpdated = $DataRows['image'];
+                    $PostToBeUpdated = $DataRows['post'];
+                }
                 ?>
-                <form action="AddNewPost.php" method="POST" enctype="multipart/form-data">
+                <form action="EditPost.php?id=<?php echo $SearchQueryParameter; ?>" method="POST" enctype="multipart/form-data">
                     <div class="card bg-secondary text-light mb-3">
                         <div class="card-body bg-dark">
                             <div class="form-group">
                                 <label for="title"><span class="FieldInfo"> Post Title:</span></label>
-                                <input class="form-control" type="text" name="PostTitle" id="title" placeholder="Type Title Here" value="">
+                                <input class="form-control" type="text" name="PostTitle" id="title" placeholder="Type Title Here" value="<?php echo $TitleToBeUpdated; ?>">
                             </div>
                             <div class="form-group">
+                                <span class="FieldInfo">Existing Category: </span>
+                                <?php echo $CategoryToBeUpdated; ?>
+                                <br>
                                 <label for="CategoryTitle"><span class="FieldInfo"> Choose Category:</span></label>
                                 <select class="form-control" id="CategoryTitle" name="Category">
                                     <?php
@@ -148,7 +157,11 @@ if (isset($_POST["Submit"])) {
                                     <?php } ?>
                                 </select>
                             </div>
+
                             <div class="form-group mb-1">
+                                <span class="FieldInfo">Existing Image: </span>
+                                <img class="mb-1" src="upload/<?php echo $ImageToBeUpdated; ?>" width="170px" height="70px">
+                                <br>
                                 <div class="custom-file">
                                     <input type="file" name="Image" id="imageSelect" value="" class="custom-file-input">
                                     <label for="imageSelect" class="custom-file-label">Select Image</label>
@@ -158,7 +171,7 @@ if (isset($_POST["Submit"])) {
                                 <label for="Post">
                                     <span class="FieldInfo">Post:</span>
                                 </label>
-                                <textarea class="form-control" id="Post" name="PostDescription" rows="8" cols="80"></textarea>
+                                <textarea class="form-control" id="Post" name="PostDescription" rows="8" cols="80"><?php echo $PostToBeUpdated; ?></textarea>
                             </div>
                             <div class="row">
                                 <div class="col-lg-6 mb-2">

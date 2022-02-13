@@ -1,5 +1,4 @@
-<?php
-require_once("includes/db.php"); ?>
+<?php require_once("includes/db.php"); ?>
 <?php require_once("includes/Functions.php"); ?>
 <?php require_once("includes/Sessions.php"); ?>
 
@@ -98,6 +97,10 @@ require_once("includes/db.php"); ?>
     <section class="container py-2 mb-4">
         <div class="row">
             <div class="col-lg-12">
+                <?php
+                echo ErrorMessage();
+                echo SuccessMessage();
+                ?>
                 <table class="table table-striped table-hover">
                     <thead class="thead-dark">
                         <tr>
@@ -150,13 +153,13 @@ require_once("includes/db.php"); ?>
                                         $Admin = substr($Admin, 0, 5) . "...";
                                     } ?>
                                     <?php echo $Admin ?></td>
-                                <td><img src="uploads/<?php echo $Image ?>" width="170px" height="50px"></td>
+                                <td><img src="upload/<?php echo $Image ?>" width="170px" height="50px"></td>
                                 <td>Comments</td>
                                 <td>
-                                    <a href="#"><span class=" btn btn-warning">Edit</span></a>
-                                    <a href="#"><span class=" btn btn-danger">Delete</span></a>
+                                    <a href="EditPost.php?id=<?php echo $Id; ?>"><span class=" btn btn-warning">Edit</span></a>
+                                    <a onClick="javascript: return confirm('Are You Sure of Deleting the Post? This cannot be undone. ');" href="DeletePost.php?id=<?php echo $Id; ?>"><span class=" btn btn-danger">Delete</span></a>
                                 </td>
-                                <td><a href="#"><span class=" btn btn-primary">Live Preview</span></a></td>
+                                <td><a href="FullPost.php?id=<?php echo $Id; ?>" target="_blank"><span class=" btn btn-primary">Live Preview</span></a></td>
                             </tr>
                         </tbody>
                     <?php } ?>
