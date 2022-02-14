@@ -4,6 +4,44 @@ require_once("includes/db.php"); ?>
 <?php require_once("includes/Sessions.php"); ?>
 <?php
 $PostIdFromURL = $_GET["id"];
+if (isset($_POST["Submit"])) {
+    $CommenterName = $_POST["CommenterName"];
+    $CommenterEmail = $_POST["CommenterEmail"];
+    $CommenterThoughts = $_POST["CommenterThoughts"];
+    $Admin = "Rijwan";
+    //Date and Time fetcher
+    date_default_timezone_set("Asia/Kolkata");
+    $DateTime = strftime("%d %B %Y %H:%M:%S", time());
+    if (empty($CommenterName) || empty($CommenterEmail) || empty($CommenterThoughts)) {
+        $_SESSION["ErrorMessage"] = "All Fields Must be Filled";
+        Redirect_to("FullPost.php?id=$PostIdFromURL");
+    } elseif (strlen($CommenterThoughts) < 3) {
+        $_SESSION["ErrorMessage"] = "Comments should be greater than 2 Characters";
+        Redirect_to("FullPost.php?id=$PostIdFromURL");
+    } elseif (strlen($CommenterThoughts) > 500) {
+        $_SESSION["ErrorMessage"] = "Comments should be less than 500 Characters";
+        Redirect_to("FullPost.php?id=$PostIdFromURL");
+    } else {
+        $sql = "INSERT INTO comments(datetime,name,email,comment,approvedby,status,post_id) Values(:datetimE,:namE,:emaiL,:commenT,'Pending','OFF',:postidfromUrl)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindValue(':datetimE', $DateTime);
+        $stmt->bindValue(':namE', $CommenterName);
+        $stmt->bindValue(':emaiL', $CommenterEmail);
+        $stmt->bindValue(':commenT', $CommenterThoughts);
+        $stmt->bindValue(':postidfromUrl', $PostIdFromURL);
+        $Execute = $stmt->execute();
+
+        if ($Execute) {
+            $_SESSION["SuccessMessage"] = "Comment Submitted Successfully";
+            Redirect_to("FullPost.php?id=$PostIdFromURL");
+        } else {
+            $_SESSION["ErrorMessage"] = "Something Went Wrong";
+            Redirect_to("FullPost.php?id=$PostIdFromURL");
+        }
+    }
+}
+?>
+<?php
 if (!isset($PostIdFromURL)) {
     $_SESSION["ErrorMessage"] = "Invalid Request !";
     Redirect_to("Blog.php");
@@ -91,6 +129,10 @@ if (!isset($PostIdFromURL)) {
                 <h1>The Complete Responsive CMS Blog</h1>
                 <h1 class="lead">The Complete Blog by using PHP by Rijwan Ansari</h1>
                 <?php
+                echo ErrorMessage();
+                echo SuccessMessage();
+                ?>
+                <?php
                 $sql = "SELECT * FROM posts WHERE id='$PostIdFromURL'";
                 $stmt = $conn->query($sql);
                 while ($DataRows = $stmt->fetch()) {
@@ -116,11 +158,76 @@ if (!isset($PostIdFromURL)) {
                     </div>
                 <?php
                 } ?>
-            </div>
+                <br>
+                <!-- Comments Section Starts Here -->
 
-            <div class="col-sm-4" style="min-height: 40px; background:red;">
+                <!-- Fetch Comments from DB Starts Here -->
 
+                <span class="FieldInfo">Comments</span>
+                <br>
+                <hr>
+                <?php
+                $sql = "SELECT * FROM comments WHERE post_id=$PostIdFromURL AND status='ON'";
+                $stmt = $conn->query($sql);
+                while ($DataRows = $stmt->fetch()) {
+                    $CommentDatetoShow = $DataRows["datetime"];
+                    $CommenterNametoShow = $DataRows["name"];
+                    $CommenterThoughtstoShow = $DataRows["comment"];
+                ?>
+
+                    <div>
+                        <div class="media CommentBlock">
+                            <img class="d-block img-fluid alogn-self-center" src="images/pic.png" alt="" width="100px" height="100px">
+                            <div class="media-body ml-2">
+                                <h6 class="lead"><?php echo $CommenterNametoShow; ?></h6>
+                                <p class="small"><?php echo $CommentDatetoShow; ?></p>
+                                <p><?php echo $CommenterThoughtstoShow; ?></p>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                <?php } ?>
+                <!-- Fetch Comments Ends Here -->
+
+                <div>
+                    <form action="FullPost.php?id=<?php echo $PostIdFromURL; ?>" method="POST">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="FieldInfo">Share Your Thoughts About this Post</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                        </div>
+                                        <input class="form-control" type="text" name="CommenterName" placeholder="Name" value="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                        </div>
+                                        <input class="form-control" type="email" name="CommenterEmail" placeholder="Email" value="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <textarea name="CommenterThoughts" class="from-control col-lg-12" rows="6"></textarea>
+                                </div>
+                                <div>
+                                    <button type="submit" name="Submit" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Comments Section Ends Here -->
             </div>
+            <!-- Side Area Starts Here -->
+            <div class="col-sm-4" style="min-height: 40px; background:red;"></div>
+            <!-- Side Area Ends Here -->
         </div>
     </div>
     <br>
